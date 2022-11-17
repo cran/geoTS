@@ -10,7 +10,7 @@ maxLagMissVal(x, type = c("NA", "numeric"), value)
 \item{x}{numeric vector.}
 
 \item{type}{character specifying the type of missing value to consider. Default is 
-\code{type = "NA"}; when \code{type == "numeric"}, \code{value} must be provided.}
+\code{type="NA"}; when \code{type="numeric"}, \code{value} must be provided.}
 
 \item{value}{numeric giving a figure to be used to fill missing values; often as part
 of a pre-processing, missing values in a dataset (vector, time series, etc.)
@@ -20,7 +20,7 @@ are fill in with pre-established values.}
 A list containing:
 \item{maxLag}{numeric giving the maximum lag of missing values in \code{x}}
 \item{x}{numeric vector with the original data}
-\item{value}{a numeric when \code{type == numeric}, \code{NA} otherwise}
+\item{value}{a numeric when \code{type=numeric}, \code{NA} otherwise}
 }
 \description{
 This function computes the maximum amount of consecutive missing values in a vector.

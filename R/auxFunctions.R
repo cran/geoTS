@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-  hants <- function(y, ts = 1:length(y), lenBasePeriod = length(y), numFreq, 
+  hants <- function(y, ts = 1:length(y), lenPeriod = length(y), numFreq, 
                     HiLo = c("Hi", "Lo"), low, high, fitErrorTol, 
                     degreeOverDeter, delta){
     
@@ -23,13 +23,13 @@
     degree <- 180 / pi
     mat[1,] <- 1
     
-    ang <- 2 * pi * (0:(lenBasePeriod-1)) / lenBasePeriod
+    ang <- 2 * pi * (0:(lenPeriod-1)) / lenPeriod
     cs <- cos(ang)
     sn <- sin(ang)
     
     i <- 1:numFreq
     for( j in 1:numImages ){
-      index <- 1 + (i * (ts[j]-1)) %% lenBasePeriod
+      index <- 1 + (i * (ts[j]-1)) %% lenPeriod
       mat[2*i, j] <- cs[index]
       mat[2*i+1, j] <- sn[index]
     }
@@ -101,8 +101,8 @@
     list(a.coef = ra, b.coef = rb,
          amplitude = amp, phase = phi, fitted = ySmooth)  
   }
-  # -----------------------------------------------------------------------------
-  harmonicR <- function(y, lenBasePeriod = length(y), numFreq, delta){
+# -----------------------------------------------------------------------------
+  harmonicR <- function(y, sigma, lenPeriod = length(y), numFreq, delta){
     
     numImages <- length(y)
     amp <- numeric(numFreq + 1)
@@ -113,10 +113,17 @@
     degree <- 180 / pi
     
     mat <- matrix(0, nrow = numImages, ncol = min(2 * numFreq + 1, numImages))
-    vecTs <- 2 * pi * (0:(lenBasePeriod-1)) / lenBasePeriod
+    vecTs <- 2 * pi * (0:(lenPeriod-1)) / lenPeriod
     mat[,1] <- 1
     mat[, seq(2, 2 * numFreq, 2)] <- sapply(1:numFreq, function(s) cos( s * vecTs ))
     mat[, seq(2, 2 * numFreq, 2)+1] <- sapply(1:numFreq, function(s) sin( s * vecTs ))
+    
+    matCopy <- mat
+    
+    if( !is.null(sigma) ){
+      y <- diag(1/sqrt(sigma)) %*% y
+      mat <- diag(1/sqrt(sigma)) %*% mat
+    }
     
     za <- t(mat) %*% ( y )
     
@@ -125,7 +132,7 @@
     A[1,1] <- A[1,1] - delta
     zr <- solve(A) %*% za
     
-    ySmooth <- (mat) %*% zr
+    ySmooth <- matCopy %*% zr
     
     amp[1] <- zr[1]
     phi[1] <- 0
@@ -146,21 +153,35 @@
   }
 # -----------------------------------------------------------------------------
 
-  globalVariables("j")
-  getParallelOutput <- function(raster, numCores, polygon_extent){
-    closter <- parallel::makeCluster(spec = numCores, outfile = "")
-    registerDoParallel(closter)
+globalVariables("j")
+getParallelOutput <- function(raster, numCores, polygon_extent){
+  closter <- parallel::makeCluster(spec = numCores, outfile = "")
+  registerDoParallel(closter)
     
-    output <- foreach(j = 1:nlayers(raster), .packages = c("raster")) %dopar% {
-      return(crop(raster[[j]], polygon_extent))
-    }
-    
-    stopCluster(closter)
-    
-    output
+  output <- foreach(j = 1:nlayers(raster), .packages = c("raster")) %dopar% {
+    return(crop(raster[[j]], polygon_extent))
   }
+    
+  stopCluster(closter)
+    
+output
+}
   
 # -----------------------------------------------------------------------------
+
+# --- Added on July 18, 2022
   
+# --- this function takes a time series -x- and returns a length(x)/lengthPeriod times lengthPeriod matrix
+get_pixel_matrix <- function(x, lenPeriod=23){ 
+  output <- matrix(nrow=length(x)/lenPeriod, ncol=lenPeriod)
   
+  for(i in seq_len(nrow(output))){
+    output[i,] <- x[((i-1) * lenPeriod + 1):(i * lenPeriod)]
+  }
+output
+}
+
+# -----------------------------------------------------------------------------
+  
+
   

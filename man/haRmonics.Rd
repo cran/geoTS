@@ -4,26 +4,41 @@
 \alias{haRmonics}
 \title{Harmonic analysis for time series}
 \usage{
-haRmonics(y, method = c("harmR", "hants"), ts = 1:length(y),
-  lenBasePeriod = length(y), numFreq, HiLo = c("Hi", "Lo"), low, high,
-  fitErrorTol, degreeOverDeter, delta)
+haRmonics(
+  y,
+  method = c("harmR", "wls_harmR", "hants"),
+  sigma = NULL,
+  ts = 1:length(y),
+  lenPeriod = length(y),
+  numFreq,
+  HiLo = c("Hi", "Lo"),
+  low,
+  high,
+  fitErrorTol,
+  degreeOverDeter,
+  delta
+)
 }
 \arguments{
 \item{y}{numeric vector containing time series on which harmonic 
 regression will be fitted. Missing values are not allowed.}
 
-\item{method}{character specifying algorithm to apply: \code{harmR} (default) or 
-\code{hants}.}
+\item{method}{character specifying algorithm to apply: \code{harmR} (default),
+\code{wls_harmR} (heteroscedastic model) or \code{hants}.}
+
+\item{sigma}{numeric vector of length \code{lenPeriod} containing variance estimates.
+Default set \code{NULL}.}
 
 \item{ts}{numeric vector of \code{length(y)} with the sampling
 points for \code{y}. Default is \eqn{ts[i] = i, i=1,\ldots, 
 \code{length(y)}}.}
 
-\item{lenBasePeriod}{numeric giving the length of the base period, reported in 
+\item{lenPeriod}{numeric giving the length of the base period, reported in 
 samples, e.g. days, dekads, months, years, etc.}
 
 \item{numFreq}{numeric indicating the total number of frequencies to be 
-used in harmonic regression.}
+used in harmonic regression. For technical reasons, \code{2*numFreq+1}
+must be lesser than \code{length(y)}.}
 
 \item{HiLo}{character indicating whether high or low outliers must be rejected
 when \code{method=hants}.}
@@ -42,10 +57,10 @@ in the fitting procedure in the next iteration of the algorithm.}
 \item{degreeOverDeter}{numeric; iteration stops when number of observations equals
 number of observations for curve fitting plus \code{degreeOverDeter};
 the latter in turns is by definition \code{length(y)} minus
-\eqn{min(2 * \code{numFreq} +1, \code{length(y)})}.}
+\code{min(2 * numFreq+1, length(y))}.}
 
 \item{delta}{numeric (positive) giving a (small) regularization parameter to prevent 
-non-invertible hat matrix (see \code{details}), probably caused by high
+non-invertible hat matrix (see \bold{Details}), probably caused by high
 amplitudes.}
 }
 \value{
@@ -57,9 +72,11 @@ A list containing:
 \item{fitted}{a numeric vector with fitted values via harmonic regression.}
 }
 \description{
-Fits harmonic regression (\code{harmR}) model, that is, computes amplitudes and phase angles 
-in the typical harmonic regression framework. Based on these estimates a harmonic regression 
-function is fitted. Also fits \code{hants}, a popular iterative algorithm that computes amplitudes and phase angles in the 
+Fits harmonic regression models, that is, computes amplitudes and phase angles 
+in the typical harmonic regression framework. When \code{method=harmR} the ordinary
+least squares method is used, when \code{method=wls_harmR} then, weighted least squares
+are employed. Based on these estimates a harmonic regression function is fitted. 
+Also fits \code{hants}, a popular iterative algorithm that computes amplitudes and phase angles in the 
 harmonic regression framework. As part of the iterative algorithm, observations
 are being excluded from the design matrix of the regression model if the distance
 between them and the fitted curve exceeds the value of the parameter \code{fitErrorTol}.
@@ -67,12 +84,17 @@ between them and the fitted curve exceeds the value of the parameter \code{fitEr
 and Matlab computer languages.
 }
 \details{
-Method \code{harmR} does not allow missing values and utilizes parameters \code{y},
-\code{lanBasePeriod}, \code{numFreq} and \code{delta} only. 
+Methods \code{harmR} and \code{wls_harmR} do not allow missing values 
+and utilize parameters \code{y}, \code{lenPeriod}, \code{numFreq} and \code{delta} 
+only. 
 
 Method \code{hants} utilizes all the parameters presented above. This method 
 does not allow missing values. Missing values in \code{y} must be substituted by values 
 considerably out of observations range.
+}
+\note{
+\code{lenBasePeriod} was used until version 0.1.3, this argument has been
+replaced by \code{lenPeriod}.
 }
 \examples{
 y <- c(5, 2, 5, 10, 12, 18, 20, 23, 27, 30, 40, 60, 66,

@@ -4,9 +4,18 @@
 \alias{transfer_bin_raster}
 \title{Transfer values from a binary image file to a raster file}
 \usage{
-transfer_bin_raster(inputPath, outputPath, master, what = integer(),
-  signed = TRUE, endian = "little", size = 2, format = "GTiff",
-  dataType = "INT2S", overwrite = TRUE)
+transfer_bin_raster(
+  inputPath,
+  outputPath,
+  master,
+  what = integer(),
+  signed = TRUE,
+  endian = "little",
+  size = 2,
+  format = "GTiff",
+  dataType = "INT2S",
+  overwrite = TRUE
+)
 }
 \arguments{
 \item{inputPath}{character with full path name of input file(s).}

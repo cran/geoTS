@@ -4,10 +4,24 @@
 \alias{split_replace}
 \title{Splits a Raster* object into smaller chunks and allows to replace cell values}
 \usage{
-split_replace(raster, partPerSide, h, v, outputPath, name, save = TRUE,
-  replace = FALSE, valToReplace, replacedBy, dataType,
-  format = "GTiff", parallelProcessing = FALSE, numCores = 20,
-  cellsToProcess, ...)
+split_replace(
+  raster,
+  partPerSide,
+  h,
+  v,
+  outputPath,
+  name,
+  save = TRUE,
+  replace = FALSE,
+  valToReplace,
+  replacedBy,
+  dataType,
+  format = "GTiff",
+  parallelProcessing = FALSE,
+  numCores = 20,
+  cellsToProcess,
+  ...
+)
 }
 \arguments{
 \item{raster}{Raster* object.}
@@ -37,11 +51,11 @@ in each direction (horizontally and vertically). Use when \code{nrow(raster)} an
 \item{format}{character, output file type, default \code{"GTiff"}. See \code{\link[raster]{writeFormats}}.}
 
 \item{parallelProcessing}{logical, default \code{FALSE}, when \code{TRUE} raster splitting is done in parallel. See
-\code{details}.}
+\bold{Details}.}
 
 \item{numCores}{numeric indicating the number of cores used in parallel processing.}
 
-\item{cellsToProcess}{numeric vector indicating which smaller cells should be processed/saved. See \code{details}.}
+\item{cellsToProcess}{numeric vector indicating which smaller cells should be processed/saved. See \bold{Details}.}
 
 \item{...}{additional arguments used by \code{\link[raster]{writeRaster}}.}
 }

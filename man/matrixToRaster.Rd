@@ -4,21 +4,34 @@
 \alias{matrixToRaster}
 \title{Creates a RasterLayer object from a matrix}
 \usage{
-matrixToRaster(matrix, RASTER)
+matrixToRaster(matrix, raster = NULL, projection = NULL)
 }
 \arguments{
-\item{matrix}{a matrix object.}
+\item{matrix}{a matrix object. See \bold{Details}.}
 
-\item{RASTER}{a RasterLayer object whose extent and projection will be used to
+\item{raster}{a \code{RasterLayer} object whose extent and projection are used to
 create a raster from \code{matrix}.}
+
+\item{projection}{a character vector providing a coordinate reference system. 
+Required when \code{ncol(matrix)=3}.}
 }
 \value{
-A RasterLayer
+A \code{RasterLayer}
 }
 \description{
 Transforms a \code{matrix} into a \code{RasterLayer} object.
 }
 \details{
-The \code{\link[sp]{coordinates}} and \code{\link[raster]{projection}} of 
-the argument \code{RASTER} are used to create a raster from the argument \code{matrix}.
+When \code{ncol(matrix)=3}, this function assumes that the first two
+columns of argument \code{matrix} provide coordinates to create a \code{RasterLayer},
+hence argument \code{projection} must be provided. When argument \code{matrix} has 
+only 2 columns, then the argument \code{raster} must be provided because its 
+\code{\link[sp]{coordinates}} and \code{\link[raster]{projection}} will be used 
+to rasterize \code{matrix}.
+}
+\note{
+In previous versions, \code{raster} argument was written in capital letters.
+}
+\seealso{
+\code{\link[raster]{Raster-class}}
 }

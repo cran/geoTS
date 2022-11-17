@@ -1,0 +1,19 @@
+
+--- 31-Oct-2022, version 0.1.6
+
+New function raster_intersect_sp, a direct application of crop and mask
+to extract data in the intersection of a Raster* and SpatialPolygonsDataFrame
+objects.
+
+data.R and extdata.R document datasets shp_Mohinora.RData and MODIS13Q1_NDVI_Mohinora.tif,
+respectively. These files are used in examples section of raster_intersect_sp documentation.
+
+
+--- 18-July-2022, version 0.1.5
+
+New function hetervar estimates heteroscedastic variance for numeric vectors
+Improvement on haRmonics: heteroscedastic harmonic regression is now allowed  
+matrixToRaster can now take on matrices produced by rasterToPoints
+
+--- 17-July-2022, version 0.1.4
+First log entry

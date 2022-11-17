@@ -20,9 +20,9 @@
 #' @param dataType           character, output data type. See \code{\link[raster]{dataType}}.
 #' @param format             character, output file type, default \code{"GTiff"}. See \code{\link[raster]{writeFormats}}.
 #' @param parallelProcessing logical, default \code{FALSE}, when \code{TRUE} raster splitting is done in parallel. See
-#'                           \code{details}.
+#'                           \bold{Details}.
 #' @param numCores           numeric indicating the number of cores used in parallel processing.
-#' @param cellsToProcess     numeric vector indicating which smaller cells should be processed/saved. See \code{details}.
+#' @param cellsToProcess     numeric vector indicating which smaller cells should be processed/saved. See \bold{Details}.
 #' @param ...                additional arguments used by \code{\link[raster]{writeRaster}}. 
 #' 
 #' @export

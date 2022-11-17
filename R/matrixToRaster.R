@@ -2,9 +2,11 @@
 #'
 #' Transforms a \code{matrix} into a \code{RasterLayer} object. 
 #' 
-#' @param matrix a matrix object.
-#' @param RASTER a RasterLayer object whose extent and projection will be used to
-#'               create a raster from \code{matrix}. 
+#' @param matrix     a matrix object. See \bold{Details}.
+#' @param raster     a \code{RasterLayer} object whose extent and projection are used to
+#'                   create a raster from \code{matrix}. 
+#' @param projection a character vector providing a coordinate reference system. 
+#'                   Required when \code{ncol(matrix)=3}.  
 #'               
 #' @export
 #' 
@@ -12,15 +14,45 @@
 #' @importFrom raster rasterToPoints
 #' @importFrom raster projection
 #' 
-#' @details The \code{\link[sp]{coordinates}} and \code{\link[raster]{projection}} of 
-#' the argument \code{RASTER} are used to create a raster from the argument \code{matrix}.
+#' @details When \code{ncol(matrix)=3}, this function assumes that the first two
+#' columns of argument \code{matrix} provide coordinates to create a \code{RasterLayer},
+#' hence argument \code{projection} must be provided. When argument \code{matrix} has 
+#' only 2 columns, then the argument \code{raster} must be provided because its 
+#' \code{\link[sp]{coordinates}} and \code{\link[raster]{projection}} will be used 
+#' to rasterize \code{matrix}.
 #' 
-#' @return A RasterLayer 
+#' @note In previous versions, \code{raster} argument was written in capital letters.
 #' 
-matrixToRaster <- function(matrix, RASTER){
-  rasterTable <- data.frame(rasterToPoints(RASTER))
+#' @seealso \code{\link[raster]{Raster-class}} 
+#' 
+#' @return A \code{RasterLayer} 
+#' 
+matrixToRaster <- function(matrix, raster=NULL, projection=NULL){
   
-  df <- data.frame(x = rasterTable$x, y = rasterTable$y, values = c(matrix))
+  if(ncol(matrix)==3){
+    if(is.null(projection)){
+      stop('projection must be provided')
+    } 
+    
+    x <- matrix[,1]
+    y <- matrix[,2]
+    values <- matrix[,3]
+    PROJ <- projection
+    
+  } else {
+    
+    if(is.null(raster)){
+      stop('raster must be provided')
+    }
+    
+    rasterTable <- data.frame(rasterToPoints(raster))
+    x <- rasterTable$x
+    y <- rasterTable$y
+    values <- c(matrix)
+    PROJ <- raster::projection(raster)
+  }
+  
+  df <- data.frame(x=x, y=y, values=values)
   
   sp::coordinates(df) <- ~ x + y
   
@@ -28,7 +60,7 @@ matrixToRaster <- function(matrix, RASTER){
   
   raster_df <- raster(df)
   
-  raster::projection(raster_df) <- raster::projection(RASTER)
+  raster::projection(raster_df) <- PROJ
   
-  raster_df
+raster_df
 }

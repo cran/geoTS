@@ -1,8 +1,10 @@
 #' Harmonic analysis for time series
 #' 
-#' Fits harmonic regression (\code{harmR}) model, that is, computes amplitudes and phase angles 
-#' in the typical harmonic regression framework. Based on these estimates a harmonic regression 
-#' function is fitted. Also fits \code{hants}, a popular iterative algorithm that computes amplitudes and phase angles in the 
+#' Fits harmonic regression models, that is, computes amplitudes and phase angles 
+#' in the typical harmonic regression framework. When \code{method=harmR} the ordinary
+#' least squares method is used, when \code{method=wls_harmR} then, weighted least squares
+#' are employed. Based on these estimates a harmonic regression function is fitted. 
+#' Also fits \code{hants}, a popular iterative algorithm that computes amplitudes and phase angles in the 
 #' harmonic regression framework. As part of the iterative algorithm, observations
 #' are being excluded from the design matrix of the regression model if the distance
 #' between them and the fitted curve exceeds the value of the parameter \code{fitErrorTol}.
@@ -11,15 +13,18 @@
 #' 
 #' @param              y  numeric vector containing time series on which harmonic 
 #'                        regression will be fitted. Missing values are not allowed.
-#' @param         method  character specifying algorithm to apply: \code{harmR} (default) or 
-#'                        \code{hants}.              
+#' @param         method  character specifying algorithm to apply: \code{harmR} (default),
+#'                        \code{wls_harmR} (heteroscedastic model) or \code{hants}. 
+#' @param          sigma  numeric vector of length \code{lenPeriod} containing variance estimates.
+#'                        Default set \code{NULL}.          
 #' @param             ts  numeric vector of \code{length(y)} with the sampling
 #'                        points for \code{y}. Default is \eqn{ts[i] = i, i=1,\ldots, 
 #'                        \code{length(y)}}.
-#' @param  lenBasePeriod  numeric giving the length of the base period, reported in 
+#' @param      lenPeriod  numeric giving the length of the base period, reported in 
 #'                        samples, e.g. days, dekads, months, years, etc.
 #' @param        numFreq  numeric indicating the total number of frequencies to be 
-#'                        used in harmonic regression.
+#'                        used in harmonic regression. For technical reasons, \code{2*numFreq+1}
+#'                        must be lesser than \code{length(y)}. 
 #' @param           HiLo  character indicating whether high or low outliers must be rejected
 #'                        when \code{method=hants}.
 #' @param            low  numeric giving minimum valid value of fitted harmonic regression 
@@ -33,19 +38,23 @@
 #' @param degreeOverDeter numeric; iteration stops when number of observations equals
 #'                        number of observations for curve fitting plus \code{degreeOverDeter};
 #'                        the latter in turns is by definition \code{length(y)} minus
-#'                        \eqn{min(2 * \code{numFreq} +1, \code{length(y)})}.
+#'                        \code{min(2 * numFreq+1, length(y))}.
 #' @param           delta numeric (positive) giving a (small) regularization parameter to prevent 
-#'                        non-invertible hat matrix (see \code{details}), probably caused by high
+#'                        non-invertible hat matrix (see \bold{Details}), probably caused by high
 #'                        amplitudes.
 #'                        
 #' @export
 #' 
-#' @details Method \code{harmR} does not allow missing values and utilizes parameters \code{y},
-#' \code{lanBasePeriod}, \code{numFreq} and \code{delta} only. 
+#' @details Methods \code{harmR} and \code{wls_harmR} do not allow missing values 
+#' and utilize parameters \code{y}, \code{lenPeriod}, \code{numFreq} and \code{delta} 
+#' only. 
 #' 
 #' Method \code{hants} utilizes all the parameters presented above. This method 
 #' does not allow missing values. Missing values in \code{y} must be substituted by values 
 #' considerably out of observations range.
+#' 
+#' @note \code{lenBasePeriod} was used until version 0.1.3, this argument has been
+#' replaced by \code{lenPeriod}.
 #' 
 #' @examples
 #' y <- c(5, 2, 5, 10, 12, 18, 20, 23, 27, 30, 40, 60, 66,
@@ -100,8 +109,8 @@
 #' @references The Matlab implementation of HANTS can be found 
 #' \href{https://nl.mathworks.com/matlabcentral/fileexchange/38841-matlab-implementation-of-harmonic-analysis-of-time-series-hants}{here}.
 #' 
-haRmonics <- function(y, method = c("harmR", "hants"), ts = 1:length(y), 
-                      lenBasePeriod = length(y), numFreq, HiLo = c("Hi", "Lo"), 
+haRmonics <- function(y, method = c("harmR", "wls_harmR", "hants"), sigma=NULL,
+                      ts = 1:length(y), lenPeriod = length(y), numFreq, HiLo = c("Hi", "Lo"), 
                       low, high, fitErrorTol, degreeOverDeter, delta){
   if(missing(y)){
     stop("y must be provided")
@@ -118,7 +127,21 @@ haRmonics <- function(y, method = c("harmR", "hants"), ts = 1:length(y),
   method <- match.arg(method)
   
   if(method == "harmR"){
-    output <- harmonicR(y = y, lenBasePeriod = lenBasePeriod, numFreq = numFreq, delta = delta)
+    output <- harmonicR(y = y, sigma = sigma, lenPeriod = lenPeriod, numFreq = numFreq, 
+                        delta = delta)
+  }
+  
+  if(method == "wls_harmR"){
+    if(is.null(sigma)){
+      stop("sigma must be provided. Check out geoTS::getSigma() for an alternative")
+    }
+    
+    if( length(sigma) != lenPeriod ){
+      stop("sigma must be a vector of length 'lenBasePeriod'. Check out geoTS::getSigma() for an alternative")
+    }
+    
+    output <- harmonicR(y = y, sigma = sigma, lenPeriod = lenPeriod, 
+                        numFreq = numFreq, delta = delta)
   }
   
   if(method == "hants"){
@@ -134,7 +157,7 @@ haRmonics <- function(y, method = c("harmR", "hants"), ts = 1:length(y),
       stop("degreeOverDeter must be provided")
     }
     
-    output <- hants(y = y, ts = ts, lenBasePeriod = lenBasePeriod, numFreq = numFreq, 
+    output <- hants(y = y, ts = ts, lenPeriod = lenPeriod, numFreq = numFreq, 
                     HiLo = HiLo, low = low, high = high, fitErrorTol = fitErrorTol, 
                     degreeOverDeter = degreeOverDeter, delta = delta)
   }

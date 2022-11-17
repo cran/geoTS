@@ -9,21 +9,41 @@
 #' @section Tools for handling time series of satellite images:
 #' \code{\link{transfer_bin_raster}} transfers data from images originally
 #' recorded in a binary format to images in any of the formats
-#' allowed by the \code{\link{raster}} package. Similarly, 
-#' \code{\link{transfer_raster_RData}} extracts the entries (numbers) of
-#' images originally recorded as a \code{\link{tiff}} file, virtually storages them 
-#' in an \code{\link{array}} object and, finally, this array is saved in an RData file.
-#' \code{\link{split_replace}} allows us to split Raster* objects, which can
+#' allowed by the \code{\link[raster]{raster-package}}. Similarly, 
+#' \code{\link{transfer_raster_RData}} extracts the entries of
+#' images originally recorded in \code{\link{tiff}} format, virtually stores them 
+#' in an \code{\link{array}} object and, finally, this array is saved in an \code{RData} file.
+#' \code{\link{split_replace}} allows us to split \code{Raster*} objects, which can
 #' be arguably large, into smaller chunks. These chunks can be saved
-#' in any of the formats allowed by \code{\link{writeRaster}}. Often, satellite
+#' in any of the formats allowed by \code{\link[raster]{writeRaster}}. Often, satellite
 #' images come with missing values (or fill values assigned by other computer
 #' programs), \code{\link{split_replace}} allows to replace these values by
-#' values of users' convenience; see also \code{\link{reclassify}}.
+#' values of users' convenience; see also \code{\link{reclassify}}. 
+#' \code{\link{raster_intersect_sp}} allows us to obtain data in the intersection of
+#' \code{Raster*} and \code{SpatialPolygonsDataFrame} objects.
 #' 
 #' @section Methods for analyzing time series of satellite images:
-#' \code{\link{haRmonics}} allows us to fit classical harmonic regression
+#' \code{\link{haRmonics}} allows us to fit harmonic regression models
 #' to numeric vectors; the method \code{hants} is based on \cite{Roerink et al. (2000)}
-#' whereas the method \code{haRm} is based on \cite{Jakubauskas et al. (2001)}.
+#' whereas the method \code{harmR} is based on \cite{Jakubauskas et al. (2001)}.
+#' The \code{wls_harmR} is the weighted least squares method which requires pre-estimation
+#' of heteroscedastic variance; \code{\link{hetervar}} allows for heteroscedastic variance
+#' estimation for numeric vectors extracted from time series of satellite imagery. 
+#' 
+#' geoTS include the following datasets:
+#' \itemize{
+#'     \item \code{\link[geoTS]{master}}: \code{RasterLayer} with a land mask of eastern Yucatan 
+#'     Peninsula, Mexico.
+#'     
+#'     \item \code{\link{MOD13Q1_NDVI_2000129_009}}: A spatial subset of NDVI measurements
+#'     taken over the eastern Yucatan Peninsula, Mexico in 2000.
+#'     
+#'     \item \code{\link{MOD13Q1_NDVI_Mohinora}}: \code{RasterStack} containing 23 spatial 
+#'     subsets of 16-day NDVI images of \bold{Cerro Mohinora} acquired in 2001.
+#'     
+#'     \item \code{\link{shp_mohinora}}: \code{SpatialPolygonsDataFrame} delimiting
+#'     the smallest Protected Area of Flora and Fauna in Mexico (\bold{Cerro Mohinora}).
+#' }
 #' 
 #' @keywords package
 #' 
